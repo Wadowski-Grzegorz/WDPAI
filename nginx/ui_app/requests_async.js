@@ -45,6 +45,7 @@ window.addEventListener('load', reloadUsers());
 
 
 // Function to send GET request
+// Doesn't used
 async function sendGetRequest() {
     const input = document.getElementById("getInputField").value;
     const url = `http://localhost:8000/${input}`; // Assumes the server is running on localhost:8000
