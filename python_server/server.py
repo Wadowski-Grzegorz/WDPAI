@@ -6,7 +6,11 @@ from typing import Type
 # Define the request handler class by extending BaseHTTPRequestHandler.
 # This class will handle HTTP requests that the server receives.
 class SimpleRequestHandler(BaseHTTPRequestHandler):
-
+    user_list = [
+        {"first_name": "Grzegorz", 
+         "last_name": "Wadowski",
+         "role": "Student"}
+        ]
     # Handle OPTIONS requests (used in CORS preflight checks).
     # CORS (Cross-Origin Resource Sharing) is a mechanism that allows restricted resources
     # on a web page to be requested from another domain outside the domain from which the resource originated.
@@ -44,14 +48,10 @@ class SimpleRequestHandler(BaseHTTPRequestHandler):
 
         # Prepare the response data, which will be returned in JSON format.
         # The response contains a simple message and the path of the request.
-        response: dict = {
-            "message": "This is a GET request",
-            "path": self.path
-        }
 
         # Convert the response dictionary to a JSON string and send it back to the client.
         # `self.wfile.write()` is used to send the response body.
-        self.wfile.write(json.dumps(response).encode())
+        self.wfile.write(json.dumps(self.user_list).encode())
 
     # Handle POST requests.
     # This method is called when the client sends a POST request.
@@ -67,11 +67,14 @@ class SimpleRequestHandler(BaseHTTPRequestHandler):
         # We expect the POST request body to contain JSON-formatted data.
         received_data: dict = json.loads(post_data.decode())
 
+        # Append new user
+        self.user_list.append(received_data)
+
         # Prepare the response data.
         # It includes a message indicating it's a POST request and the data we received from the client.
         response: dict = {
-            "message": "This is a POST request",
-            "received": received_data
+            "message": "Added user",
+            "updated_list": self.user_list
         }
 
         # Send the response headers.
@@ -86,6 +89,28 @@ class SimpleRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
         # Convert the response dictionary to a JSON string and send it back to the client.
+        self.wfile.write(json.dumps(response).encode())
+
+    def do_DELETE(self) -> None:
+        try:
+            user_index = int(self.path.strip('/'))
+            self.user_list.pop(user_index)
+            response = {
+                "message": "User deleted",
+                "updated_list": self.user_list
+            }
+            self.send_response(200)
+        
+        except (ValueError, IndexError):
+            response = {
+                "message": "Not found user with this index",
+                "updated_list": self.user_list
+            }
+            self.send_response(400)
+        
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', "*")
+        self.end_headers()
         self.wfile.write(json.dumps(response).encode())
 
 
