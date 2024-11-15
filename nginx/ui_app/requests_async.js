@@ -9,11 +9,12 @@ async function reloadUsers(){
     try{
         const response = await fetch(url);
         const users = await response.json();
+        // console.log(users)
 
         const userList = document.getElementById("userList");
         userList.innerHTML = "";
 
-        users.forEach((user, index) =>{
+        users.forEach((user) =>{
             const listUser = document.createElement("div");
     
             listUser.innerHTML = `
@@ -26,7 +27,7 @@ async function reloadUsers(){
                                 </div>
                         </div>
 
-                        <button class="delete_button" onclick="deleteUser(${index})">
+                        <button class="delete_button" onclick="deleteUser(${user.id})">
                             <i class="fa-regular fa-trash-can"></i>
                         </button>
                     </div>        
@@ -37,7 +38,7 @@ async function reloadUsers(){
         });
 
     }catch(error){
-        console.error('Error:', error);
+        console.error('Error reloading users:', error);
     }
 }
 
